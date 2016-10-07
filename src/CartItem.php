@@ -41,7 +41,7 @@ class CartItem implements Arrayable
      * @var float
      */
     public $price;
-    
+
 
     /**
      * The options for this cart item.
@@ -72,7 +72,7 @@ class CartItem implements Arrayable
      * @param float      $price
      * @param array      $options
      */
-    public function __construct($id, $name, $price, array $options = [])
+    public function __construct($id, $name, $price, $taxRate = null, array $options = [])
     {
         if(empty($id)) {
             throw new \InvalidArgumentException('Please supply a valid identifier.');
@@ -87,6 +87,7 @@ class CartItem implements Arrayable
         $this->id       = $id;
         $this->name     = $name;
         $this->price    = floatval($price);
+        $this->taxRate  = $taxRate;
         $this->options  = new CartItemOptions($options);
         $this->rowId = $this->generateRowId($id, $options);
     }
@@ -103,7 +104,7 @@ class CartItem implements Arrayable
     {
         return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
     }
-    
+
     /**
      * Returns the formatted price with TAX.
      *
@@ -130,7 +131,7 @@ class CartItem implements Arrayable
     {
         return $this->numberFormat($this->subtotal, $decimals, $decimalPoint, $thousandSeperator);
     }
-    
+
     /**
      * Returns the formatted total.
      * Total is price for whole CartItem with TAX
@@ -157,7 +158,7 @@ class CartItem implements Arrayable
     {
         return $this->numberFormat($this->tax, $decimals, $decimalPoint, $thousandSeperator);
     }
-    
+
     /**
      * Returns the formatted tax.
      *
@@ -195,6 +196,7 @@ class CartItem implements Arrayable
         $this->id       = $item->getBuyableIdentifier($this->options);
         $this->name     = $item->getBuyableDescription($this->options);
         $this->price    = $item->getBuyablePrice($this->options);
+        $this->taxRate  = $item->getBuyableTaxRate($this->options);
         $this->priceTax = $this->price + $this->tax;
     }
 
@@ -210,6 +212,7 @@ class CartItem implements Arrayable
         $this->qty      = array_get($attributes, 'qty', $this->qty);
         $this->name     = array_get($attributes, 'name', $this->name);
         $this->price    = array_get($attributes, 'price', $this->price);
+        $this->taxRate    = array_get($attributes, 'tax', $this->taxRate);
         $this->priceTax = $this->price + $this->tax;
         $this->options  = new CartItemOptions(array_get($attributes, 'options', []));
 
@@ -253,11 +256,11 @@ class CartItem implements Arrayable
         if($attribute === 'priceTax') {
             return $this->price + $this->tax;
         }
-        
+
         if($attribute === 'subtotal') {
             return $this->qty * $this->price;
         }
-        
+
         if($attribute === 'total') {
             return $this->qty * ($this->priceTax);
         }
@@ -265,7 +268,7 @@ class CartItem implements Arrayable
         if($attribute === 'tax') {
             return $this->price * ($this->taxRate / 100);
         }
-        
+
         if($attribute === 'taxTotal') {
             return $this->tax * $this->qty;
         }
@@ -286,7 +289,7 @@ class CartItem implements Arrayable
      */
     public static function fromBuyable(Buyable $item, array $options = [])
     {
-        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $options);
+        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $item->getBuyableTaxRate($options), $options);
     }
 
     /**
@@ -299,7 +302,7 @@ class CartItem implements Arrayable
     {
         $options = array_get($attributes, 'options', []);
 
-        return new self($attributes['id'], $attributes['name'], $attributes['price'], $options);
+        return new self($attributes['id'], $attributes['name'], $attributes['price'], null, $options);
     }
 
     /**
@@ -313,7 +316,7 @@ class CartItem implements Arrayable
      */
     public static function fromAttributes($id, $name, $price, array $options = [])
     {
-        return new self($id, $name, $price, $options);
+        return new self($id, $name, $price, null, $options);
     }
 
     /**

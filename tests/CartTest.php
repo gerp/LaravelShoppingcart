@@ -38,7 +38,7 @@ class CartTest extends Orchestra\Testbench\TestCase
             'prefix'   => '',
         ]);
     }
-    
+
     /** @test */
     public function it_has_a_default_instance()
     {
@@ -63,7 +63,7 @@ class CartTest extends Orchestra\Testbench\TestCase
         $this->assertItemsInCart(1, $cart->instance(Cart::DEFAULT_INSTANCE));
         $this->assertItemsInCart(1, $cart->instance('wishlist'));
     }
-    
+
     /** @test */
     public function it_can_add_an_item()
     {
@@ -857,7 +857,7 @@ class CartTest extends Orchestra\Testbench\TestCase
         $this->seeInDatabase('shoppingcart', ['identifier' => $identifier, 'instance' => 'default', 'content' => $serialized]);
     }
 
-    /** 
+    /**
      * @test
      * @expectedException \Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException
      * @expectedExceptionMessage A cart with identifier 123 was already stored.
@@ -990,20 +990,21 @@ class CartTest extends Orchestra\Testbench\TestCase
      * @param float  $price
      * @return \Mockery\MockInterface
      */
-    private function getBuyableMock($id = 1, $name = 'Item name', $price = 10.00)
+    private function getBuyableMock($id = 1, $name = 'Item name', $price = 10.00, $taxrate = 21)
     {
         $item = Mockery::mock(Buyable::class)->shouldIgnoreMissing();
 
         $item->shouldReceive('getBuyableIdentifier')->andReturn($id);
         $item->shouldReceive('getBuyableDescription')->andReturn($name);
         $item->shouldReceive('getBuyablePrice')->andReturn($price);
+        $item->shouldReceive('getBuyableTaxRate')->andReturn($taxrate);
 
         return $item;
     }
 
     /**
      * Set the config number format
-     * 
+     *
      * @param $decimals
      * @param $decimalPoint
      * @param $thousandSeperator

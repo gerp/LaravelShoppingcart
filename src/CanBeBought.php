@@ -40,4 +40,14 @@ trait CanBeBought
 
         return null;
     }
+
+    /**
+     * Get the tax rate of the Buyable item.
+     *
+     * @return int|float
+     */
+    public function getBuyableTaxRate()
+    {
+        return null;
+    }
 }

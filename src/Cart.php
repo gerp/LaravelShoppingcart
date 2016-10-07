@@ -25,7 +25,7 @@ class Cart
 
     /**
      * Instance of the event dispatcher.
-     * 
+     *
      * @var \Illuminate\Contracts\Events\Dispatcher
      */
     private $events;
@@ -103,7 +103,7 @@ class Cart
         }
 
         $content->put($cartItem->rowId, $cartItem);
-        
+
         $this->events->fire('cart.added', $cartItem);
 
         $this->session->put($this->instance, $content);
@@ -454,12 +454,12 @@ class Cart
         } elseif (is_array($id)) {
             $cartItem = CartItem::fromArray($id);
             $cartItem->setQuantity($id['qty']);
+            $cartItem->setTaxRate(config('cart.tax'));
         } else {
             $cartItem = CartItem::fromAttributes($id, $name, $price, $options);
             $cartItem->setQuantity($qty);
+            $cartItem->setTaxRate(config('cart.tax'));
         }
-
-        $cartItem->setTaxRate(config('cart.tax'));
 
         return $cartItem;
     }
